@@ -1,0 +1,107 @@
+# Iono Pi Access Control System Configuration
+
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+  cors_origins: ["*"]
+
+# Security Configuration
+security:
+  secret_key: "your-secret-key-change-this-in-production"
+  algorithm: "HS256"
+  access_token_expire_minutes: 30
+  admin_username: "admin"
+  admin_password: "admin123"  # Change this!
+
+# Hardware Configuration (Iono Pi GPIO Pins)
+hardware:
+  # Relay outputs (GPIO pins controlling relays)
+  relays:
+    door_control: 4    # GPIO 4 - Relay 1 (Door strike/lock)
+    auxiliary: 17      # GPIO 17 - Relay 2 (Auxiliary)
+    spare1: 27         # GPIO 27 - Relay 3
+    spare2: 22         # GPIO 22 - Relay 4
+  
+  # Digital inputs
+  inputs:
+    door_sensor: 18    # GPIO 18 - Door position sensor
+    emergency_button: 23  # GPIO 23 - Emergency override
+    aux_input1: 24     # GPIO 24 - Auxiliary input
+    aux_input2: 25     # GPIO 25 - Auxiliary input
+  
+  # Door control settings
+  door:
+    unlock_duration: 5  # Seconds to keep door unlocked
+    sensor_normally_closed: true  # Door sensor type
+
+# Barcode Scanner Configuration
+barcode_scanner:
+  enabled: true
+  device: "/dev/ttyUSB0"  # USB barcode scanner device
+  baudrate: 9600
+  timeout: 1.0
+  prefix: ""  # Optional prefix to strip from barcodes
+  suffix: "\r\n"  # Expected barcode terminator
+
+# Database Configuration
+database:
+  # Local SQLite database for caching and logging
+  local:
+    path: "data/access_control.db"
+  
+  # Remote database for barcode verification
+  remote:
+    type: "http"  # "http", "postgresql", "mysql"
+    
+    # For HTTP API verification
+    http:
+      base_url: "https://your-api-server.com/api"
+      verify_endpoint: "/access/verify"
+      auth_header: "Authorization"
+      auth_token: "Bearer your-api-token"
+      timeout: 5.0
+    
+    # For direct database connection (alternative to HTTP)
+    # postgresql:
+    #   host: "your-db-server.com"
+    #   port: 5432
+    #   database: "access_control"
+    #   username: "access_user"
+    #   password: "db_password"
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "json"  # "json" or "text"
+  file:
+    enabled: true
+    path: "logs/access_control.log"
+    max_size_mb: 10
+    backup_count: 5
+  
+  # Remote logging (optional)
+  remote:
+    enabled: false
+    url: "https://your-log-server.com/logs"
+    api_key: "your-log-api-key"
+
+# System Monitoring
+monitoring:
+  health_check_interval: 60  # seconds
+  hardware_check_interval: 10  # seconds
+  
+  # Alerts configuration
+  alerts:
+    email:
+      enabled: false
+      smtp_server: "smtp.gmail.com"
+      smtp_port: 587
+      username: "alerts@yourdomain.com"
+      password: "your-email-password"
+      recipients: ["admin@yourdomain.com"]
+    
+    webhook:
+      enabled: false
+      url: "https://hooks.slack.com/your-webhook-url"
